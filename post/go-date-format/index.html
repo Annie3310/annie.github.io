@@ -1,0 +1,185 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta name="description" content=""/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+<title>Go 语言的日期格式化 | Annie&#39;s Cafe</title>
+
+<link rel="shortcut icon" href="https://blog.annie.cafe/favicon.ico?v=1665200175858">
+
+<link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://blog.annie.cafe/styles/main.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets/highlight.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dockerfile.min.js"></script>
+<script src="https://cdn.bootcss.com/highlight.js/9.15.10/languages/dart.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/moment@2.27.0/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.min.js"></script>
+<!-- DEMO JS -->
+<!--<script src="media/scripts/index.js"></script>-->
+
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.css">
+</head>
+<body>
+<div class="main gt-bg-theme-color-first">
+    <nav class="navbar navbar-expand-lg">
+    <div class="navbar-brand">
+        <img class="user-avatar" src="/images/avatar.png" alt="头像">
+        <div class="site-name gt-c-content-color-first">
+            <a href="/">Annie&#39;s Cafe</a>
+        </div>
+    </div>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars gt-c-content-color-first" style="font-size: 18px"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="navbar-nav mr-auto" style="text-align: center">
+            
+                <div class="nav-item">
+                    
+                        <a href="/" class="menu gt-a-link">
+                            首页
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/archives" class="menu gt-a-link">
+                            归档
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/tags" class="menu gt-a-link">
+                            标签
+                        </a>
+                    
+                </div>
+            
+                <div class="nav-item">
+                    
+                        <a href="/post/about" class="menu gt-a-link">
+                            关于
+                        </a>
+                    
+                </div>
+            
+        </div>
+        <div style="text-align: center">
+            <form id="gridea-search-form" style="position: relative" data-update="1665200175858" action="/search/index.html">
+                <input class="search-input" autocomplete="off" spellcheck="false" name="q" placeholder="搜索文章" />
+                <i class="fas fa-search gt-c-content-color-first" style="position: absolute; top: 9px; left: 10px;"></i>
+            </form>
+        </div>
+    </div>
+</nav>
+
+    <div class="post-container">
+        <div class="post-detail gt-bg-theme-color-second">
+            <article class="gt-post-content">
+                <h2 class="post-title">
+                    Go 语言的日期格式化
+                </h2>
+                <div class="post-info">
+                    <time class="post-time gt-c-content-color-first">
+                        · 2022-08-24 ·
+                    </time>
+                    
+                        <a href="https://blog.annie.cafe/tag/JmN69nvgj/" class="post-tags">
+                            # go
+                        </a>
+                    
+                </div>
+                <div class="post-content">
+                    <h2 id="正文">正文</h2>
+<p>假设你会其他语言但不会 Go 语言, 请说出看到下面这行代码时的第一反应</p>
+<pre><code class="language-go">fmt.Println(time.Now().Format(&quot;2006-01-02 15:04:05&quot;))
+</code></pre>
+<p>这段代码的输出是</p>
+<pre><code class="language-shell">// 写这段代码的时间
+2022-08-24 17:12:08
+</code></pre>
+<p>根据经验 <code>time.Now()</code> 是获取现在的时间, 而 <code>Format()</code> 是格式化时间, 直到这一步和都符合以往的编程经验, 但是看到格式化参数时想必是一个头两个大.</p>
+<p>按照 &quot;通常&quot; 的格式化规则, 这段代码应该是 <code>yyyy-MM-dd HH:mm:ss</code> 可为什么会是 <code>2006-01-02 15:04:05</code> 呢?</p>
+<p>我的第一想法是这段可以用任何符合格式的日期代替, 结果使用 <code>2022-03-04 12:00:00</code> 来替换上面的时间串时, 输出确是这样的</p>
+<pre><code class="language-shell">242424-05-17 824:00:00
+</code></pre>
+<p>综上可知, <code>2006-01-02 15:04:05</code> 这段代码是有含义的, 可 Go 语言发布于 2009 年, 按正常逻辑也不会用某个人的生日来做日期格式化这种操作.</p>
+<p>于是我在 <a href="https://pkg.go.dev/time#Time.Format">Go 语言的文档</a>中找到了这样一段话</p>
+<blockquote>
+<p>The layout string used by the Parse function and Format method shows by example how the reference time should be represented. We stress that one must show how the reference time is formatted, not a time of the user's choosing. Thus each layout string is a representation of the time stamp,<br>
+Jan 2 15:04:05 2006 MST<br>
+An easy way to remember this value is that it holds, when presented in this order, the values (lined up with the elements above):<br>
+1 2  3  4  5    6  -7</p>
+</blockquote>
+<p>简短来说:<br>
+1, 2, 3, 4, 5 ,6, 7 分别代表了 月, 日, 小时 (3 是 12 小时制的 3 时, 15 则是 24 小时制中的 3 PM), 分, 秒, 年, 时区.<br>
+06-01-02 03:04:05 就代表了 yy-MM-dd hh:mm:ss</p>
+<p>这样的日期格式化方式好不好用见仁见智, 但脑洞是真的大.</p>
+<h2 id="番外">番外</h2>
+<p>有人注册过这样的域名 fuckinggodateformat.com, 不过已经被 DNS 劫持了, 不要访问.</p>
+
+                </div>
+            </article>
+        </div>
+
+        
+            <div class="next-post">
+                <div class="next gt-c-content-color-first">下一篇</div>
+                <a href="https://blog.annie.cafe/post/hello-gridea/" class="post-title gt-a-link">
+                    Hello Gridea
+                </a>
+            </div>
+        
+
+        
+
+        
+
+        
+
+        <div class="site-footer gt-c-content-color-first">
+    <div class="slogan gt-c-content-color-first">Welcome</div>
+    <div class="social-container">
+        
+            
+                <a href="https://github.com/Annie3310" target="_blank">
+                    <i class="fab fa-github gt-c-content-color-first"></i>
+                </a>
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+            
+        
+    </div>
+    <div class="footer-info">
+        Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea 
+    </div>
+</div>
+
+<script>
+  hljs.initHighlightingOnLoad()
+</script>
+
+    </div>
+</div>
+</body>
+</html>
